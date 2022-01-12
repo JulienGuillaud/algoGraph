@@ -1,3 +1,5 @@
+
+
 function createSVG(lesNodes, lesLinks){
     // set up SVG for D3
     var width = 960,
@@ -27,7 +29,7 @@ function createSVG(lesNodes, lesLinks){
         ];
     */
    var nodes = lesNodes;
-   var lastNodeId = "F";
+   var lastNodeId = nodes[nodes.length - 1].id
    var links = lesLinks;
     
     // init D3 force layout
@@ -310,8 +312,6 @@ function createSVG(lesNodes, lesLinks){
         function keydown() {
             if(document.activeElement.id == "graphSVG"){
                 d3.event.preventDefault();
-            
-                console.log("down")
             
                 if (lastKeyDown !== -1) return;
                 lastKeyDown = d3.event.keyCode;

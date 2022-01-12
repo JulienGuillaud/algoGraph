@@ -11,19 +11,61 @@
     <div style="position:absolute;left:0px;top:0px;width: 70%;height: 100vh;" id="graphSVG" tabindex="0"></div>
     <div style="position:absolute;right:0px;top:0px;width: 30%;height: 100vh;background-color: lightgray;" id="param" tabindex="1">
         <form action="" id="dynamic-table">
-            <input type="number" placeholder="enter size" name="size">
-            <br></br>
-            <button>Create table</button>
-            <br></br>
+            <div style="width: 100%;height: 100px;margin-top: 70px;display: flex;flex-direction: column;align-items: center;">
+               <label for="size">Taille de la matrice</label><br>
+               <input type="text" placeholder="enter size" name="size" style="width: 100px;height: 50px;margin: 0px;padding: 0px;text-align: center;" maxlength="2">
+            </div>
+            <br>
+            <div style="width: 100%;height: 50px;display: flex;flex-direction: column;align-items: center;">
+               <button style="width: 100px;height: 50px;">Créer matrice</button>
+            </div>
+            <br>
 
         </form>
-        <div id="table-wrapper">
+        <div id="table-wrapper" style="display: flex;justify-content: center;">
+        </div>
+        <div style="display: flex;justify-content: center;">
+           <button id="generateButton"  style="width: 100px;height: 50px;display:none;">Générer</button>
         </div>
 </body>
 
 <script src="d3.v3.min.js"></script>
 <script src="main.js"></script>
 <script>
+   function isNumeric(str) {
+      if (typeof str != "string") return false // we only process strings!  
+      return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+               !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+   }
+   $("#generateButton").hide();
+
+   $("#generateButton").on('click', function(e){
+      // Créer matrice
+      var tailleMatriceUtilisateur = $("#table-wrapper table tr").eq(1).children("td").length
+      var laMatrice = []
+      for(var i = 1 ; i < tailleMatriceUtilisateur+1 ; i++){
+         var laLigne = []
+         for(var j = 0 ; j < tailleMatriceUtilisateur ; j++){
+            value = $('#'+i + "-" + j).val()
+            laLigne.push(value)
+         }
+         laMatrice.push(laLigne)
+      }
+      console.log("matrice")
+      console.log(laMatrice)
+      newGraph = new Graph(laMatrice)
+      newGraph.show();
+
+      newGraph.createSVGfromGraph()
+   });
+
+   $("input[name='size']").on('input', function(e){
+      if($("input[name='size']").val() > 26){
+         $(this).val("26");
+      }
+      $("input[name='size']").val($("input[name='size']").val().replace(/[^0-9]/g, ''));
+   });
+
     let form = document.getElementById("dynamic-table");
 
     form.addEventListener('submit', (e) => {
@@ -40,14 +82,26 @@
     let tableWrapper = document.getElementById("table-wrapper");
     tableWrapper.innerHTML = ''
     tableWrapper.appendChild(table);
+    
 
 
     let dynamicTable = (_size) => {
-
-        table.width = (_size*50)+'px';
+       $("#table-wrapper table").empty()
+       $("#generateButton").show();
+       $("#generateButton").prop("disabled",true);
+       var newTableSize = (_size*50) + 100
+        table.width = newTableSize+'px';
+        charcode = 64;
         for (let i = 1; i <= _size; i++) {
             let tr = document.createElement("tr");
             table.appendChild(tr)
+
+            let p = document.createElement("p");
+            var newCharcode = charcode+i
+            var lettre = String.fromCharCode(newCharcode)
+            p.style.cssText = 'text-align: center;font-size: 2em;margin-top: 7px;';
+            p.innerText = lettre
+            tr.appendChild(p)
 
             for (let n = 0; n < _size; n++) {
                 let td = document.createElement("td");
@@ -58,22 +112,51 @@
                 input.classList.add('inputMatrix');
                 input.id = i + "-" + n;
                 td.appendChild(input)
-                $('#'+i + "-" + n).keypress(function(e){
-                    console.log(i + "-" + n)
-                    var n1 = n+1
-                    if(n1 == _size){
-                        var i1 = i+1
-                        if(i1 != _size){
-                            $('#'+i1 + "-0").focus();
-                        }
+                $('#'+i + "-" + n).on('keypress',function(e){
+                   if(e.which == 48 || e.which == 49 || e.which == 8){
+                       // Si l'input est deja rempli, le vider
+                       var pressedKey = String.fromCharCode(e.keyCode);
+                       //if($('#'+i + "-" + n).length > 1){
+                        $('#'+i + "-" + n).val(pressedKey)
+                       //}
+                       var n1 = n+1
+                       if(n1 == _size){
+                          var i1 = i+1
+                          if(i != _size){
+                              $('#'+i1 + "-0").focus();
+                           }
+                        }else{
+                           $('#'+i + "-" + n1).focus();
+                       }
                     }else{
-                        $('#'+i + "-" + n1).focus();
-                    }
-                    if(e.which == 48 || e.which == 49 || e.which == 8)return;
-                    else return false; 
+                       return false;
+                     }
+                     var isValid = true;
+                     $('.inputMatrix').each(function() {
+                        if ( $(this).val()==""){
+                           isValid = false;
+                        }
+                     });
+                     if(isValid){
+                        $("#generateButton").prop("disabled",false);
+                     }else{
+                        $("#generateButton").prop("disabled",true);
+                     }
                 });
             }
         }
+        //$("#table-wrapper table").prepend("<tr></tr>");
+        let tr = document.createElement("tr");
+        for(var i = 0 ; i <= _size ; i++){
+           var newCharcode = charcode+i
+           var lettre = String.fromCharCode(newCharcode)
+           if(i==0) lettre = ""
+            let p = document.createElement("td");
+            p.style.cssText = 'text-align: center;font-size: 2em;';
+            p.innerText = lettre
+            tr.appendChild(p)
+        }
+        table.insertBefore(tr, table.firstChild);
     }
 </script>
 <script>
@@ -98,8 +181,8 @@
           this.racine = null
           this.node = []
           var alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-          var num_rows = graphMatrix1.length
-          var num_cols = graphMatrix1.length
+          var num_rows = matrix.length
+          var num_cols = matrix.length
           for (var i = 0; i < num_rows; i++) {
              var alphabetLetter = alphabet[i]
              this.node.push(new Node(alphabetLetter))
@@ -107,8 +190,8 @@
           var nbRow = 0
           for (var rowIndex = 0 ; rowIndex < matrix.length ; rowIndex++) {
              var row = matrix[rowIndex]
-             console.log("row : ")
-             console.log(row)
+             //console.log("row : ")
+             //console.log(row)
              var rowLetter = alphabet[nbRow]
              var nodeRow = this.findNode(rowLetter)
                 //console.log("Row = "+rowLetter)
@@ -129,11 +212,8 @@
        }
 
        findNode(value) {
-          console.log(this.node)
           for (var currentNodeIndex = 0 ; currentNodeIndex < this.node.length ; currentNodeIndex++) {
              var currentNode = this.node[currentNodeIndex]
-             console.log("Current node : ")
-             console.log(currentNode)
              if (currentNode.getValue() == value) {
                 return currentNode
              }
@@ -146,19 +226,16 @@
           return "Degre de " + value + " : " + degre
        }
        show() {
-          var returnValue = "<div>"
           for (var noeudIndex = 0 ; noeudIndex < this.node.length ; noeudIndex++) {
              var noeud = this.node[noeudIndex]
              var nodeVal = noeud.getValue()
              var nodeAntecedents = noeud.getAntecedent()
-             returnValue += nodeVal+"<br>"
+             console.log(nodeVal);
              for (var antecedentsIndex = 0 ; antecedentsIndex < nodeAntecedents.length ; antecedentsIndex++) {
                 var antecedents = nodeAntecedents[antecedentsIndex]
-                returnValue += " ↳ " + antecedents.getValue()+"<br>"
+                console.log(" ↳ " + antecedents.getValue())
              }
           }
-          returnValue += "</div>"
-          return returnValue
        }
        createSVGfromGraph(){
            var newNodes = []
@@ -197,7 +274,7 @@
        }
 
     }
-
+/*
     graphMatrix1 = [
        [0, 1, 0, 0, 0, 0],
        [0, 0, 1, 0, 0, 0],
@@ -209,7 +286,7 @@
     graph1 = new Graph(graphMatrix1)
 
     graph1.createSVGfromGraph()
-
+*/
  </script>
 
 
