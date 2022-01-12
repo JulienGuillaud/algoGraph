@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset='utf-8'>
+   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+   <title>Page Title</title>
+   <meta name='viewport' content='width=device-width, initial-scale=1'>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+   <script>
+      class Node {
+         constructor(val) {
+            this.value = val
+            this.antecedent = []
+         }
+         getValue() {
+            return this.value
+         }
+         setAntecedent(antecedent) {
+            this.antecedent.push(antecedent)
+         }
+         getAntecedent() {
+            return this.antecedent
+         }
+      }
+
+      class Graph {
+         constructor(matrix) {
+            this.racine = null
+            this.node = []
+            var alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+            var num_rows = graphMatrix1.length
+            var num_cols = graphMatrix1.length
+            for (var i = 0; i < num_rows; i++) {
+               var alphabetLetter = alphabet[i]
+               this.node.push(new Node(alphabetLetter))
+            }
+            var nbRow = 0
+            for (var rowIndex = 0 ; rowIndex < matrix.length ; rowIndex++) {
+               var row = matrix[rowIndex]
+               console.log("row : ")
+               console.log(row)
+               var rowLetter = alphabet[nbRow]
+               var nodeRow = this.findNode(rowLetter)
+                  //console.log("Row = "+rowLetter)
+               var nbAntecedent = 0
+               for (var antecedentIndex = 0 ; antecedentIndex < row.length ; antecedentIndex++) {
+                  var antecedent = matrix[rowIndex][antecedentIndex]
+                  var antecedentLetter = alphabet[nbAntecedent]
+                  var antecedentNodeRow = this.findNode(antecedentLetter)
+                  if (antecedent == 1) {
+                     //console.log("> "+antecedentLetter)
+                     nodeRow.setAntecedent(antecedentNodeRow)
+                  }
+                  nbAntecedent += 1
+               }
+               nbRow += 1
+            }
+
+         }
+
+         findNode(value) {
+            console.log(this.node)
+            for (var currentNodeIndex = 0 ; currentNodeIndex < this.node.length ; currentNodeIndex++) {
+               var currentNode = this.node[currentNodeIndex]
+               console.log("Current node : ")
+               console.log(currentNode)
+               if (currentNode.getValue() == value) {
+                  return currentNode
+               }
+            }
+         }
+
+         showDegre(value) {
+            var noeud = this.findNode(value)
+            var degre = noeud.getAntecedent().length;
+            return "Degre de " + value + " : " + degre
+         }
+         show() {
+            var returnValue = "<div>"
+            for (var noeudIndex = 0 ; noeudIndex < this.node.length ; noeudIndex++) {
+               var noeud = this.node[noeudIndex]
+               var nodeVal = noeud.getValue()
+               var nodeAntecedents = noeud.getAntecedent()
+               returnValue += nodeVal+"<br>"
+               for (var antecedentsIndex = 0 ; antecedentsIndex < nodeAntecedents.length ; antecedentsIndex++) {
+                  var antecedents = nodeAntecedents[antecedentsIndex]
+                  returnValue += " ↳ " + antecedents.getValue()+"<br>"
+               }
+            }
+            returnValue += "</div>"
+            return returnValue
+         }
+
+      }
+
+      graphMatrix1 = [
+         [0, 1, 0, 0, 0, 0],
+         [0, 0, 1, 0, 0, 0],
+         [0, 0, 0, 0, 1, 0],
+         [0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 1, 0, 1],
+         [0, 0, 0, 0, 0, 0]
+      ]
+      var num_rows = graphMatrix1.length
+      var num_cols = graphMatrix1.length
+
+      graph1 = new Graph(graphMatrix1)
+      $("body").append($(graph1.show()))
+
+      $("body").append($("<p>"+graph1.showDegre("A")+"</p>"))
+      $("body").append($("<p>"+graph1.showDegre("E")+"</p>"))
+      $("body").append($("<p>"+graph1.showDegre("F")+"</p>"))
+   </script>
+</body>
+</html>
