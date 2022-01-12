@@ -4,15 +4,14 @@
     <meta charset="utf-8">
     <title>Directed Graph Editor</title>
     <link rel="stylesheet" href="main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
-    <div style="position:absolute;left:0px;top:0px;width: 70%;height: 100vh;" id="graphSVG"></div>
-    <div style="position:absolute;right:0px;top:0px;width: 30%;height: 100vh;background-color: lightgray;">
+    <div style="position:absolute;left:0px;top:0px;width: 70%;height: 100vh;" id="graphSVG" tabindex="0"></div>
+    <div style="position:absolute;right:0px;top:0px;width: 30%;height: 100vh;background-color: lightgray;" id="param" tabindex="1">
         <form action="" id="dynamic-table">
-            <input type="number" placeholder="enter rows" name="rows">
-            <br></br>
-            <input type="number" placeholder="enter column" name="column">
+            <input type="number" placeholder="enter size" name="size">
             <br></br>
             <button>Create table</button>
             <br></br>
@@ -30,33 +29,49 @@
     form.addEventListener('submit', (e) => {
         e.preventDefault()
 
-        let row = e.target.elements.rows.value;
-        let col = e.target.elements.column.value;
+        
+        let size = e.target.elements.size.value;
 
-        dynamicTable(row, col);
+        dynamicTable(size);
     })
 
-    let tableWrapper = document.getElementById("table-wrapper");
-
     let table = document.createElement("table");
+
+    let tableWrapper = document.getElementById("table-wrapper");
     tableWrapper.innerHTML = ''
     tableWrapper.appendChild(table);
 
 
-    let dynamicTable = (input1, input2) => {
+    let dynamicTable = (_size) => {
 
-
-        for (let i = 1; i <= input1; i++) {
+        table.width = (_size*50)+'px';
+        for (let i = 1; i <= _size; i++) {
             let tr = document.createElement("tr");
             table.appendChild(tr)
 
-            for (let n = 0; n < input2; n++) {
+            for (let n = 0; n < _size; n++) {
                 let td = document.createElement("td");
                 tr.appendChild(td);
                 let input = document.createElement("input");
-                input.type = 'hidden';
+                input.type = 'text';
+                input.maxLength = 1;
+                input.classList.add('inputMatrix');
                 input.id = i + "-" + n;
                 td.appendChild(input)
+                $('#'+i + "-" + n).keypress(function(e){
+                    console.log(i + "-" + n)
+                    var n1 = n+1
+                    if(n1 == _size){
+                        var i1 = i+1
+                        if(i1 != _size){
+                            $('#'+i1 + "-0").focus();
+                        }
+                    }else{
+                        $('#'+i + "-" + n1).focus();
+                    }
+                    if(e.which == 48 || e.which == 49 || e.which == 8)return;
+                    else return false; 
+                });
             }
         }
     }

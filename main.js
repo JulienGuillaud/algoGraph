@@ -5,6 +5,8 @@ var width = 960,
 
 var svg = d3.select('#graphSVG')
     .append('svg')
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 700 700")
     .attr('width', width)
     .attr('height', height);
 
@@ -239,46 +241,53 @@ function restart() {
 }
 
 function mousedown() {
-    // prevent I-bar on drag
-    //d3.event.preventDefault();
+    if(document.activeElement.id == "graphSVG"){
+        // prevent I-bar on drag
+        //d3.event.preventDefault();
 
-    // because :active only works in WebKit?
-    svg.classed('active', true);
+        // because :active only works in WebKit?
+        svg.classed('active', true);
 
-    if (d3.event.ctrlKey || mousedown_node || mousedown_link) return;
+        if (d3.event.ctrlKey || mousedown_node || mousedown_link) return;
 
-    // insert new node at point
-    var point = d3.mouse(this),
-        node = { id: String.fromCharCode(++lastNodeId), reflexive: false };
-    node.x = point[0];
-    node.y = point[1];
-    nodes.push(node);
+        // insert new node at point
+        var point = d3.mouse(this),
+            node = { id: String.fromCharCode(++lastNodeId), reflexive: false };
+        node.x = point[0];
+        node.y = point[1];
+        nodes.push(node);
 
-    restart();
+        restart();
+    }
 }
 
 function mousemove() {
-    if (!mousedown_node) return;
-
-    // update drag line
-    drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
-
-    restart();
+    if(document.activeElement.id == "graphSVG"){
+        if (!mousedown_node) return;
+    
+        // update drag line
+        drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
+    
+        restart();
+    }
 }
 
 function mouseup() {
-    if (mousedown_node) {
-        // hide drag line
-        drag_line
+    if(document.activeElement.id == "graphSVG"){
+        
+        if (mousedown_node) {
+            // hide drag line
+            drag_line
             .classed('hidden', true)
             .style('marker-end', '');
+        }
+        
+        // because :active only works in WebKit?
+        svg.classed('active', false);
+        
+        // clear mouse event vars
+        resetMouseVars();
     }
-
-    // because :active only works in WebKit?
-    svg.classed('active', false);
-
-    // clear mouse event vars
-    resetMouseVars();
 }
 
 function spliceLinksForNode(node) {
@@ -294,72 +303,81 @@ function spliceLinksForNode(node) {
 var lastKeyDown = -1;
 
 function keydown() {
-    d3.event.preventDefault();
+    if(document.activeElement.id == "graphSVG"){
+        d3.event.preventDefault();
+    
+        console.log("down")
+    
+        if (lastKeyDown !== -1) return;
+        lastKeyDown = d3.event.keyCode;
+    
+        // ctrl
+        if (d3.event.keyCode === 17) {
+            circle.call(force.drag);
+            svg.classed('ctrl', true);
+        }
+    
+        if (!selected_node && !selected_link) return;
+        switch (d3.event.keyCode) {
+            case 8: // backspace
+            case 46: // delete
+                if (selected_node) {
+                    nodes.splice(nodes.indexOf(selected_node), 1);
+                    spliceLinksForNode(selected_node);
+                } else if (selected_link) {
+                    links.splice(links.indexOf(selected_link), 1);
+                }
+                selected_link = null;
+                selected_node = null;
+                restart();
+                break;
+            case 66: // B
+                if (selected_link) {
+                    // set link direction to both left and right
+                    selected_link.left = true;
+                    selected_link.right = true;
+                }
+                restart();
+                break;
+            case 76: // L
+                if (selected_link) {
+                    // set link direction to left only
+                    selected_link.left = true;
+                    selected_link.right = false;
+                }
+                restart();
+                break;
+            case 82: // R
+                if (selected_node) {
+                    // toggle node reflexivity
+                    selected_node.reflexive = !selected_node.reflexive;
+                } else if (selected_link) {
+                    // set link direction to right only
+                    selected_link.left = false;
+                    selected_link.right = true;
+                }
+                restart();
+                break;
+        }
 
-    if (lastKeyDown !== -1) return;
-    lastKeyDown = d3.event.keyCode;
-
-    // ctrl
-    if (d3.event.keyCode === 17) {
-        circle.call(force.drag);
-        svg.classed('ctrl', true);
-    }
-
-    if (!selected_node && !selected_link) return;
-    switch (d3.event.keyCode) {
-        case 8: // backspace
-        case 46: // delete
-            if (selected_node) {
-                nodes.splice(nodes.indexOf(selected_node), 1);
-                spliceLinksForNode(selected_node);
-            } else if (selected_link) {
-                links.splice(links.indexOf(selected_link), 1);
-            }
-            selected_link = null;
-            selected_node = null;
-            restart();
-            break;
-        case 66: // B
-            if (selected_link) {
-                // set link direction to both left and right
-                selected_link.left = true;
-                selected_link.right = true;
-            }
-            restart();
-            break;
-        case 76: // L
-            if (selected_link) {
-                // set link direction to left only
-                selected_link.left = true;
-                selected_link.right = false;
-            }
-            restart();
-            break;
-        case 82: // R
-            if (selected_node) {
-                // toggle node reflexivity
-                selected_node.reflexive = !selected_node.reflexive;
-            } else if (selected_link) {
-                // set link direction to right only
-                selected_link.left = false;
-                selected_link.right = true;
-            }
-            restart();
-            break;
     }
 }
 
 function keyup() {
-    lastKeyDown = -1;
+    if(document.activeElement.id == "graphSVG"){
 
-    // ctrl
-    if (d3.event.keyCode === 17) {
-        circle
+        lastKeyDown = -1;
+        
+        // ctrl
+        if (d3.event.keyCode === 17) {
+            circle
             .on('mousedown.drag', null)
             .on('touchstart.drag', null);
-        svg.classed('ctrl', false);
+            svg.classed('ctrl', false);
+        }
     }
 }
+
 
 // app starts here
 svg.on('mousedown', mousedown)
