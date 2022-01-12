@@ -126,16 +126,7 @@ function createSVG(lesNodes, lesLinks){
                 .classed('selected', function(d) { return d === selected_link; })
                 .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
                 .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
-                .on('mousedown', function(d) {
-                    if (d3.event.ctrlKey) return;
-        
-                    // select link
-                    mousedown_link = d;
-                    if (mousedown_link === selected_link) selected_link = null;
-                    else selected_link = mousedown_link;
-                    selected_node = null;
-                    restart();
-                });
+
         
             // remove old links
             path.exit().remove();
@@ -169,7 +160,7 @@ function createSVG(lesNodes, lesLinks){
                     // unenlarge target node
                     d3.select(this).attr('transform', '');
                 })
-                .on('mousedown', function(d) {
+                /*.on('mousedown', function(d) {
                     if (d3.event.ctrlKey) return;
         
                     // select node
@@ -178,13 +169,6 @@ function createSVG(lesNodes, lesLinks){
                     else selected_node = mousedown_node;
                     selected_link = null;
         
-                    // reposition drag line
-                    drag_line
-                        .style('marker-end', 'url(#end-arrow)')
-                        .classed('hidden', false)
-                        .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
-        
-                    restart();
                 })
                 .on('mouseup', function(d) {
                     if (!mousedown_node) return;
@@ -221,17 +205,13 @@ function createSVG(lesNodes, lesLinks){
         
                     if (link) {
                         link[direction] = true;
-                    } else {
-                        link = { source: source, target: target, left: false, right: false };
-                        link[direction] = true;
-                        links.push(link);
                     }
         
                     // select new link
                     selected_link = link;
                     selected_node = null;
                     restart();
-                });
+                });*/
         
             // show node IDs
             g.append('svg:text')
@@ -253,18 +233,11 @@ function createSVG(lesNodes, lesLinks){
                 //d3.event.preventDefault();
         
                 // because :active only works in WebKit?
+                circle.call(force.drag);
+                svg.classed('ctrl', true);
                 svg.classed('active', true);
         
                 if (d3.event.ctrlKey || mousedown_node || mousedown_link) return;
-        
-                // insert new node at point
-                var point = d3.mouse(this),
-                    node = { id: String.fromCharCode(++lastNodeId), reflexive: false };
-                node.x = point[0];
-                node.y = point[1];
-                nodes.push(node);
-        
-                restart();
             }
         }
         
@@ -383,7 +356,8 @@ function createSVG(lesNodes, lesLinks){
             }
         }
         
-        
+        svg.classed('ctrl', true);
+        svg.classed('active', true);
         // app starts here
         svg.on('mousedown', mousedown)
             .on('mousemove', mousemove)
