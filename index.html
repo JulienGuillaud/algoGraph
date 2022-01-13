@@ -6,12 +6,15 @@
     <link rel="stylesheet" href="main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div style="position:absolute;left:0px;top:0px;width: 60%;height: 100%;z-index: 0;" id="graphSVG" tabindex="0"></div>
     <div style="position:absolute;right:0px;top:0px;width: 40%;height: 100%;border-left: double 5px lightgrey;padding-left: 3%;padding-top: 2%;overflow-y: scroll;box-shadow: -6px 1px 5px #d5d5d5;z-index: 2;" id="param" tabindex="1">
+        <h1 style="font-family: 'Bangers', cursive;border-bottom: solid 5px;font-size: 3em;padding-bottom: 17px;margin-bottom: 45px;">Pas la SNCF</h1>
         <form action="" id="dynamic-table">
             <div class="input-group" style="width: fit-content;">
                 <div class="input-group-prepend">
@@ -30,8 +33,43 @@
         <div class="form-group">
             <button id="generateButton" class="btn btn-primary" style="margin-top: 15px;width: 133px;height: 35px;">Générer</button>
         </div>
+        <hr>
+        <div class="input-group" style="width: fit-content;">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="">Départ </span>
+            </div>
+            <input type="text" class="form-control" name="depart" id="inputDepart" style="width: 150px;height: 50px;">
+        </div>
+        <div class="input-group" style="width: fit-content;">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="">Arrivée </span>
+            </div>
+            <input type="text" class="form-control" name="arrivee" id="inputArrivee" style="width: 150px;height: 50px;">
+        </div>
         <div class="form-group">
-            <button class="btn btn-primary" id="loadGares" style="margin-top: 15px;width: 133px;height: 35px;">Load gares</button>
+            <button id="verifierChemin" class="btn btn-primary" style="margin-top: 15px;width: 165px;height: 35px;">Itineraire possible ?</button>
+            <button id="verifierCheminAnswer" class="btn btn-secondary" disabled style="margin-top: 15px;width: 133px;height: 35px;"></button>
+        </div>
+        <hr>
+        <div class="input-group" style="width: fit-content;">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="">Départ </span>
+            </div>
+            <input type="text" class="form-control" name="departItineraire" id="inputDepart-itineraire" style="width: 150px;height: 50px;">
+        </div>
+        <div class="input-group" style="width: fit-content;">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="">Arrivée </span>
+            </div>
+            <input type="text" class="form-control" name="arriveeItineraire" id="inputArrivee-itineraire" style="width: 150px;height: 50px;">
+        </div>
+        <div class="form-group">
+            <button id="calculerItineraire" class="btn btn-primary" style="margin-top: 15px;width: 165px;height: 35px;">Calculer l'itineraire</button>
+            <p id="resultatItineraire"></p>
+        </div>
+        <hr>
+        <div class="form-group">
+            <button class="btn btn-primary" id="loadGares" style="margin-top: 15px;width: 133px;height: 35px;">Charger Gares</button>
         </div>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -40,6 +78,8 @@
         <script src="d3.v3.min.js"></script>
         <script src="main.js"></script>
         <script>
+            var currentGraph;
+
             function isNumeric(str) {
                 if (typeof str != "string") return false // we only process strings!  
                 return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
@@ -48,30 +88,44 @@
             $("#generateButton").hide();
 
             $("#loadGares").on('click', function(e) {
-                var gares = [
-                    "Paris",
-                    "Metz",
-                    "Lyon",
-                    "Marseille",
-                    "Brest",
-                    "Briançon",
-                    "Gap",
-                    "Toulon",
-                    "Bordeaux",
-                    "Nantes",
-                    "Rennes",
-                    "Dijon",
-                    "Valence",
-                    "Nice",
-                    "Limoges",
-                    "Reims",
-                    "Toulouse",
-                    "Montpellier",
-                ];
-                var garesNodes = createGareNodes(gares);
-                var gareLinks = getGaresLinks(garesNodes);
-                createSVG(garesNodes, gareLinks);
+                currentGraph = createGare()
+                currentGraph.show();
+                currentGraph.createSVGfromGraph()
             });
+
+            $("#calculerItineraire").on('click', function(e) {
+                var depart = $("#inputDepart-itineraire").val()
+                var arrivee = $("#inputArrivee-itineraire").val()
+                if (depart != "" && arrivee != "") {
+                    var itineraire = currentGraph.creerItineraire(depart, arrivee)
+
+
+                    $("#resultatItineraire").text(itineraire)
+                }
+            });
+
+            $("#verifierChemin").on('click', function(e) {
+                //var curentMatrix = math.matrix(currentGraph.getMatrix())
+                var depart = $("#inputDepart").val()
+                var arrivee = $("#inputArrivee").val()
+                if (depart != "" && arrivee != "") {
+                    if (currentGraph.cheminPossibleVers(depart, arrivee)) {
+                        $("#verifierCheminAnswer").removeClass("btn-danger")
+                        $("#verifierCheminAnswer").removeClass("btn-secondary")
+                        $("#verifierCheminAnswer").addClass("btn-success")
+                        $("#verifierCheminAnswer").text("Possible !")
+                    } else {
+                        $("#verifierCheminAnswer").removeClass("btn-success")
+                        $("#verifierCheminAnswer").removeClass("btn-secondary")
+                        $("#verifierCheminAnswer").addClass("btn-danger")
+                        $("#verifierCheminAnswer").text("Pas possible...")
+
+                    }
+
+                }
+
+            });
+
             $("#generateButton").on('click', function(e) {
                 // Créer matrice
                 var tailleMatriceUtilisateur = $("#table-wrapper table tr").eq(1).children("td").length
@@ -84,12 +138,13 @@
                     }
                     laMatrice.push(laLigne)
                 }
-                //console.log("matrice")
-                //console.log(laMatrice)
-                newGraph = new Graph(laMatrice)
-                newGraph.show();
+                currentGraph = new Graph()
+                currentGraph.fromMatrix(laMatrice)
+                currentGraph.show();
 
-                newGraph.createSVGfromGraph()
+                currentGraph.createSVGfromGraph()
+
+                console.log(currentGraph.getMatrix())
             });
 
             $("input[name='size']").on('input', function(e) {
@@ -103,6 +158,7 @@
         <script src="creationFormMatrice.js"></script>
         <!-- Script class Graph et Node -->
         <script src="Graph.js"></script>
+        <script src="math.js"></script>
 </body>
 
 </html>

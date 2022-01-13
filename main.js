@@ -7,12 +7,11 @@ function createSVG(lesNodes, lesLinks) {
     var svg = d3.select('#graphSVG')
         .append('svg')
         .attr("preserveAspectRatio", "xMinYMin meet")
-        .attr("viewBox", "0 0 700 700")
+        .attr("viewBox", "0 -150 800 800") // 0 0 700 700
         .attr('width', width)
         .attr('height', height);
 
     var nodes = lesNodes;
-    var lastNodeId = nodes[nodes.length - 1].id
     var links = lesLinks;
 
     // init D3 force layout
