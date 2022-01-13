@@ -25,11 +25,6 @@ function createSVG(lesNodes, lesLinks) {
         .on('tick', tick)
 
 
-    // line displayed when dragging new nodes
-    var drag_line = svg.append('svg:path')
-        .attr('class', 'link dragline hidden')
-        .attr('d', 'M0,0L0,0');
-
     // handles to link and node element groups
     var path = svg.append('svg:g').selectAll('path'),
         circle = svg.append('svg:g').selectAll('g');
@@ -71,6 +66,9 @@ function createSVG(lesNodes, lesLinks) {
 
     // update force layout (called automatically each iteration)
     function tick() {
+        path.attr('id', function(d) {
+            return d.value
+        });
         path.attr('d', function(d) {
             var x1 = d.source.x,
                 y1 = d.source.y,

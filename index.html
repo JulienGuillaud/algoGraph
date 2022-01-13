@@ -5,71 +5,104 @@
     <title>Directed Graph Editor</title>
     <link rel="stylesheet" href="main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 </head>
 
 <body>
-    <div style="position:absolute;left:0px;top:0px;width: 70%;height: 100%;" id="graphSVG" tabindex="0"></div>
-    <div style="position:absolute;right:0px;top:0px;width: 30%;height: 100%;background-color: lightgray;overflow-y: scroll;" id="param" tabindex="1">
+    <div style="position:absolute;left:0px;top:0px;width: 60%;height: 100%;z-index: 0;" id="graphSVG" tabindex="0"></div>
+    <div style="position:absolute;right:0px;top:0px;width: 40%;height: 100%;border-left: double 5px lightgrey;padding-left: 3%;padding-top: 2%;overflow-y: scroll;box-shadow: -6px 1px 5px #d5d5d5;z-index: 2;" id="param" tabindex="1">
         <form action="" id="dynamic-table">
-            <div style="width: 100%;height: 100px;margin-top: 70px;display: flex;flex-direction: column;align-items: center;">
-                <label for="size">Taille de la matrice</label><br>
-                <input type="text" placeholder="enter size" name="size" style="width: 100px;height: 50px;margin: 0px;padding: 0px;text-align: center;" maxlength="2">
+            <div class="input-group" style="width: fit-content;">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="">Size </span>
+                </div>
+                <input type="text" class="form-control" name="size" maxlength="2" style="width: 80px;height: 50px;">
             </div>
-            <br>
-            <div style="width: 100%;height: 50px;display: flex;flex-direction: column;align-items: center;">
-                <button style="width: 100px;height: 50px;">Créer matrice</button>
+            <div class="form-group">
+                <button class="btn btn-primary" style="margin-top: 15px;width: 133px;height: 35px;">Créer matrice</button>
             </div>
-            <br>
 
+            <br>
         </form>
-        <div id="table-wrapper" style="display: flex;justify-content: center;">
+        <div id="table-wrapper">
         </div>
-        <div style="display: flex;justify-content: center;">
-            <button id="generateButton" style="width: 100px;height: 50px;display:none;">Générer</button>
+        <div class="form-group">
+            <button id="generateButton" class="btn btn-primary" style="margin-top: 15px;width: 133px;height: 35px;">Générer</button>
         </div>
-</body>
+        <div class="form-group">
+            <button class="btn btn-primary" id="loadGares" style="margin-top: 15px;width: 133px;height: 35px;">Load gares</button>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-<script src="d3.v3.min.js"></script>
-<script src="main.js"></script>
-<script>
-    function isNumeric(str) {
-        if (typeof str != "string") return false // we only process strings!  
-        return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
-    }
-    $("#generateButton").hide();
-
-    $("#generateButton").on('click', function(e) {
-        // Créer matrice
-        var tailleMatriceUtilisateur = $("#table-wrapper table tr").eq(1).children("td").length
-        var laMatrice = []
-        for (var i = 1; i < tailleMatriceUtilisateur + 1; i++) {
-            var laLigne = []
-            for (var j = 0; j < tailleMatriceUtilisateur; j++) {
-                value = $('#' + i + "-" + j).val()
-                laLigne.push(value)
+        <script src="d3.v3.min.js"></script>
+        <script src="main.js"></script>
+        <script>
+            function isNumeric(str) {
+                if (typeof str != "string") return false // we only process strings!  
+                return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+                    !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
             }
-            laMatrice.push(laLigne)
-        }
-        //console.log("matrice")
-        //console.log(laMatrice)
-        newGraph = new Graph(laMatrice)
-        newGraph.show();
+            $("#generateButton").hide();
 
-        newGraph.createSVGfromGraph()
-    });
+            $("#loadGares").on('click', function(e) {
+                var gares = [
+                    "Paris",
+                    "Metz",
+                    "Lyon",
+                    "Marseille",
+                    "Brest",
+                    "Briançon",
+                    "Gap",
+                    "Toulon",
+                    "Bordeaux",
+                    "Nantes",
+                    "Rennes",
+                    "Dijon",
+                    "Valence",
+                    "Nice",
+                    "Limoges",
+                    "Reims",
+                    "Toulouse",
+                    "Montpellier",
+                ];
+                var garesNodes = createGareNodes(gares);
+                var gareLinks = getGaresLinks(garesNodes);
+                createSVG(garesNodes, gareLinks);
+            });
+            $("#generateButton").on('click', function(e) {
+                // Créer matrice
+                var tailleMatriceUtilisateur = $("#table-wrapper table tr").eq(1).children("td").length
+                var laMatrice = []
+                for (var i = 1; i < tailleMatriceUtilisateur + 1; i++) {
+                    var laLigne = []
+                    for (var j = 0; j < tailleMatriceUtilisateur; j++) {
+                        value = $('#' + i + "-" + j).val()
+                        laLigne.push(value)
+                    }
+                    laMatrice.push(laLigne)
+                }
+                //console.log("matrice")
+                //console.log(laMatrice)
+                newGraph = new Graph(laMatrice)
+                newGraph.show();
 
-    $("input[name='size']").on('input', function(e) {
-        if ($("input[name='size']").val() > 26) {
-            $(this).val("26");
-        }
-        $("input[name='size']").val($("input[name='size']").val().replace(/[^0-9]/g, ''));
-    });
-</script>
-<!-- Script de création de la matrice dynamique -->
-<script src="creationFormMatrice.js"></script>
-<!-- Script class Graph et Node -->
-<script src="Graph.js"></script>
+                newGraph.createSVGfromGraph()
+            });
+
+            $("input[name='size']").on('input', function(e) {
+                if ($("input[name='size']").val() > 26) {
+                    $(this).val("26");
+                }
+                $("input[name='size']").val($("input[name='size']").val().replace(/[^0-9]/g, ''));
+            });
+        </script>
+        <!-- Script de création de la matrice dynamique -->
+        <script src="creationFormMatrice.js"></script>
+        <!-- Script class Graph et Node -->
+        <script src="Graph.js"></script>
+</body>
 
 </html>

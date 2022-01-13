@@ -84,3 +84,11 @@ input.inputMatrix {
     font-size: 1.5em;
     text-align: center;
 }
+
+.center-middle {
+    margin: 0 auto;
+}
+
+p {
+    margin: 0px;
+}
