@@ -5,19 +5,20 @@
     <title>Directed Graph Editor</title>
     <link rel="stylesheet" href="main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 </head>
 
 <body>
-    <div style="position:absolute;left:0px;top:0px;width: 70%;height: 100vh;" id="graphSVG" tabindex="0"></div>
-    <div style="position:absolute;right:0px;top:0px;width: 30%;height: 100vh;background-color: lightgray;" id="param" tabindex="1">
+    <div style="position:absolute;left:0px;top:0px;width: 70%;height: 100%;" id="graphSVG" tabindex="0"></div>
+    <div style="position:absolute;right:0px;top:0px;width: 30%;height: 100%;background-color: lightgray;overflow-y: scroll;" id="param" tabindex="1">
         <form action="" id="dynamic-table">
             <div style="width: 100%;height: 100px;margin-top: 70px;display: flex;flex-direction: column;align-items: center;">
-               <label for="size">Taille de la matrice</label><br>
-               <input type="text" placeholder="enter size" name="size" style="width: 100px;height: 50px;margin: 0px;padding: 0px;text-align: center;" maxlength="2">
+                <label for="size">Taille de la matrice</label><br>
+                <input type="text" placeholder="enter size" name="size" style="width: 100px;height: 50px;margin: 0px;padding: 0px;text-align: center;" maxlength="2">
             </div>
             <br>
             <div style="width: 100%;height: 50px;display: flex;flex-direction: column;align-items: center;">
-               <button style="width: 100px;height: 50px;">Créer matrice</button>
+                <button style="width: 100px;height: 50px;">Créer matrice</button>
             </div>
             <br>
 
@@ -25,269 +26,50 @@
         <div id="table-wrapper" style="display: flex;justify-content: center;">
         </div>
         <div style="display: flex;justify-content: center;">
-           <button id="generateButton"  style="width: 100px;height: 50px;display:none;">Générer</button>
+            <button id="generateButton" style="width: 100px;height: 50px;display:none;">Générer</button>
         </div>
 </body>
 
 <script src="d3.v3.min.js"></script>
 <script src="main.js"></script>
 <script>
-   function isNumeric(str) {
-      if (typeof str != "string") return false // we only process strings!  
-      return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-               !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
-   }
-   $("#generateButton").hide();
-
-   $("#generateButton").on('click', function(e){
-      // Créer matrice
-      var tailleMatriceUtilisateur = $("#table-wrapper table tr").eq(1).children("td").length
-      var laMatrice = []
-      for(var i = 1 ; i < tailleMatriceUtilisateur+1 ; i++){
-         var laLigne = []
-         for(var j = 0 ; j < tailleMatriceUtilisateur ; j++){
-            value = $('#'+i + "-" + j).val()
-            laLigne.push(value)
-         }
-         laMatrice.push(laLigne)
-      }
-      console.log("matrice")
-      console.log(laMatrice)
-      newGraph = new Graph(laMatrice)
-      newGraph.show();
-
-      newGraph.createSVGfromGraph()
-   });
-
-   $("input[name='size']").on('input', function(e){
-      if($("input[name='size']").val() > 26){
-         $(this).val("26");
-      }
-      $("input[name='size']").val($("input[name='size']").val().replace(/[^0-9]/g, ''));
-   });
-
-    let form = document.getElementById("dynamic-table");
-
-    form.addEventListener('submit', (e) => {
-        e.preventDefault()
-
-        
-        let size = e.target.elements.size.value;
-
-        dynamicTable(size);
-    })
-
-    let table = document.createElement("table");
-
-    let tableWrapper = document.getElementById("table-wrapper");
-    tableWrapper.innerHTML = ''
-    tableWrapper.appendChild(table);
-    
-
-
-    let dynamicTable = (_size) => {
-       $("#table-wrapper table").empty()
-       $("#generateButton").show();
-       $("#generateButton").prop("disabled",true);
-       var newTableSize = (_size*50) + 100
-        table.width = newTableSize+'px';
-        charcode = 64;
-        for (let i = 1; i <= _size; i++) {
-            let tr = document.createElement("tr");
-            table.appendChild(tr)
-
-            let p = document.createElement("p");
-            var newCharcode = charcode+i
-            var lettre = String.fromCharCode(newCharcode)
-            p.style.cssText = 'text-align: center;font-size: 2em;margin-top: 7px;';
-            p.innerText = lettre
-            tr.appendChild(p)
-
-            for (let n = 0; n < _size; n++) {
-                let td = document.createElement("td");
-                tr.appendChild(td);
-                let input = document.createElement("input");
-                input.type = 'text';
-                input.maxLength = 1;
-                input.classList.add('inputMatrix');
-                input.id = i + "-" + n;
-                td.appendChild(input)
-                $('#'+i + "-" + n).on('keypress',function(e){
-                   if(e.which == 48 || e.which == 49 || e.which == 8){
-                       // Si l'input est deja rempli, le vider
-                       var pressedKey = String.fromCharCode(e.keyCode);
-                       //if($('#'+i + "-" + n).length > 1){
-                        $('#'+i + "-" + n).val(pressedKey)
-                       //}
-                       var n1 = n+1
-                       if(n1 == _size){
-                          var i1 = i+1
-                          if(i != _size){
-                              $('#'+i1 + "-0").focus();
-                           }
-                        }else{
-                           $('#'+i + "-" + n1).focus();
-                       }
-                    }else{
-                       return false;
-                     }
-                     var isValid = true;
-                     $('.inputMatrix').each(function() {
-                        if ( $(this).val()==""){
-                           isValid = false;
-                        }
-                     });
-                     if(isValid){
-                        $("#generateButton").prop("disabled",false);
-                     }else{
-                        $("#generateButton").prop("disabled",true);
-                     }
-                });
-            }
-        }
-        //$("#table-wrapper table").prepend("<tr></tr>");
-        let tr = document.createElement("tr");
-        for(var i = 0 ; i <= _size ; i++){
-           var newCharcode = charcode+i
-           var lettre = String.fromCharCode(newCharcode)
-           if(i==0) lettre = ""
-            let p = document.createElement("td");
-            p.style.cssText = 'text-align: center;font-size: 2em;';
-            p.innerText = lettre
-            tr.appendChild(p)
-        }
-        table.insertBefore(tr, table.firstChild);
+    function isNumeric(str) {
+        if (typeof str != "string") return false // we only process strings!  
+        return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
     }
+    $("#generateButton").hide();
+
+    $("#generateButton").on('click', function(e) {
+        // Créer matrice
+        var tailleMatriceUtilisateur = $("#table-wrapper table tr").eq(1).children("td").length
+        var laMatrice = []
+        for (var i = 1; i < tailleMatriceUtilisateur + 1; i++) {
+            var laLigne = []
+            for (var j = 0; j < tailleMatriceUtilisateur; j++) {
+                value = $('#' + i + "-" + j).val()
+                laLigne.push(value)
+            }
+            laMatrice.push(laLigne)
+        }
+        //console.log("matrice")
+        //console.log(laMatrice)
+        newGraph = new Graph(laMatrice)
+        newGraph.show();
+
+        newGraph.createSVGfromGraph()
+    });
+
+    $("input[name='size']").on('input', function(e) {
+        if ($("input[name='size']").val() > 26) {
+            $(this).val("26");
+        }
+        $("input[name='size']").val($("input[name='size']").val().replace(/[^0-9]/g, ''));
+    });
 </script>
-<script>
-    class Node {
-       constructor(val) {
-          this.value = val
-          this.antecedent = []
-       }
-       getValue() {
-          return this.value
-       }
-       setAntecedent(antecedent) {
-          this.antecedent.push(antecedent)
-       }
-       getAntecedent() {
-          return this.antecedent
-       }
-    }
-
-    class Graph {
-       constructor(matrix) {
-          this.racine = null
-          this.node = []
-          var alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-          var num_rows = matrix.length
-          var num_cols = matrix.length
-          for (var i = 0; i < num_rows; i++) {
-             var alphabetLetter = alphabet[i]
-             this.node.push(new Node(alphabetLetter))
-          }
-          var nbRow = 0
-          for (var rowIndex = 0 ; rowIndex < matrix.length ; rowIndex++) {
-             var row = matrix[rowIndex]
-             //console.log("row : ")
-             //console.log(row)
-             var rowLetter = alphabet[nbRow]
-             var nodeRow = this.findNode(rowLetter)
-                //console.log("Row = "+rowLetter)
-             var nbAntecedent = 0
-             for (var antecedentIndex = 0 ; antecedentIndex < row.length ; antecedentIndex++) {
-                var antecedent = matrix[rowIndex][antecedentIndex]
-                var antecedentLetter = alphabet[nbAntecedent]
-                var antecedentNodeRow = this.findNode(antecedentLetter)
-                if (antecedent == 1) {
-                   //console.log("> "+antecedentLetter)
-                   nodeRow.setAntecedent(antecedentNodeRow)
-                }
-                nbAntecedent += 1
-             }
-             nbRow += 1
-          }
-
-       }
-
-       findNode(value) {
-          for (var currentNodeIndex = 0 ; currentNodeIndex < this.node.length ; currentNodeIndex++) {
-             var currentNode = this.node[currentNodeIndex]
-             if (currentNode.getValue() == value) {
-                return currentNode
-             }
-          }
-       }
-
-       showDegre(value) {
-          var noeud = this.findNode(value)
-          var degre = noeud.getAntecedent().length;
-          return "Degre de " + value + " : " + degre
-       }
-       show() {
-          for (var noeudIndex = 0 ; noeudIndex < this.node.length ; noeudIndex++) {
-             var noeud = this.node[noeudIndex]
-             var nodeVal = noeud.getValue()
-             var nodeAntecedents = noeud.getAntecedent()
-             console.log(nodeVal);
-             for (var antecedentsIndex = 0 ; antecedentsIndex < nodeAntecedents.length ; antecedentsIndex++) {
-                var antecedents = nodeAntecedents[antecedentsIndex]
-                console.log(" ↳ " + antecedents.getValue())
-             }
-          }
-       }
-       createSVGfromGraph(){
-           var newNodes = []
-           var newLinks = []
-            for (var noeudIndex = 0 ; noeudIndex < this.node.length ; noeudIndex++) {
-                var noeud = this.node[noeudIndex]
-                var nodeVal = noeud.getValue()
-                var nodeAntecedents = noeud.getAntecedent()
-                var nodeJson = { id: nodeVal, reflexive: false }
-                nodeJson.x = 0;
-                nodeJson.y = 0;
-                newNodes.push(nodeJson);
-            }
-            for (var noeudIndex = 0 ; noeudIndex < this.node.length ; noeudIndex++) {
-                var noeud = this.node[noeudIndex]
-                var nodeVal = noeud.getValue()
-                var nodeAntecedents = noeud.getAntecedent()
-                for (var antecedentsIndex = 0 ; antecedentsIndex < nodeAntecedents.length ; antecedentsIndex++) {
-                    var antecedents = nodeAntecedents[antecedentsIndex]
-                    // Récupération de l'index du noeux enfant dans le graph
-                    for (var currentNodeIndex = 0 ; currentNodeIndex < this.node.length ; currentNodeIndex++) {
-                        var currentNode = this.node[currentNodeIndex]
-                        if (currentNode.getValue() == antecedents.getValue()) {
-                            var antecedentID = currentNodeIndex
-                        }
-                    }
-                    newLinks.push({ source: newNodes[noeudIndex], target: newNodes[antecedentID], left: false, right: true });
-                }
-            }
-
-            createSVG(newNodes, newLinks)
-            
-            //restart()
-            //nodes.push({ id: "UIGBAU", reflexive: false });
-            //links.push({ source: nodes[3], target: nodes[1], left: false, right: true });
-       }
-
-    }
-/*
-    graphMatrix1 = [
-       [0, 1, 0, 0, 0, 0],
-       [0, 0, 1, 0, 0, 0],
-       [0, 0, 0, 0, 1, 0],
-       [0, 1, 0, 0, 0, 0],
-       [0, 0, 0, 1, 0, 1],
-       [0, 0, 0, 0, 0, 0]
-    ]
-    graph1 = new Graph(graphMatrix1)
-
-    graph1.createSVGfromGraph()
-*/
- </script>
-
+<!-- Script de création de la matrice dynamique -->
+<script src="creationFormMatrice.js"></script>
+<!-- Script class Graph et Node -->
+<script src="Graph.js"></script>
 
 </html>
