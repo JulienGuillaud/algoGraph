@@ -17,6 +17,8 @@ class Node {
 class Graph {
     constructor() {
         this.node = [];
+        this.constructionNodeSet = null
+        this.constructionLinkSet = null
     }
 
     fromArray(gares, links) {
@@ -33,6 +35,8 @@ class Graph {
                 departNode.setAntecedent(arriveeNode);
             }
         }
+        this.constructionNodeSet = gares
+        this.constructionLinkSet = links
     }
 
     fromMatrix(matrix) {
@@ -248,96 +252,121 @@ class Graph {
 
 function createGare() {
     var gares = [
-        "Paris",
-        "Metz",
-        "Lyon",
-        "Marseille",
-        "Brest",
-        "Briançon",
-        "Gap",
-        "Toulon",
-        "Bordeaux",
-        "Nantes",
-        "Rennes",
-        "Dijon",
-        "Valence",
-        "Nice",
-        "Limoges",
-        "Reims",
-        "Toulouse",
-        "Montpellier",
-    ];
+        "Vaise",
+        "Valmy",
+        "Gorge de loup",
+        "Vieux lyon",
+        "Bellecour",
+        "Guillotière",
+        "Saxe-gambetta",
+        "Garibaldid",
+        "Sans-souci",
+        "Monplaisir-lumière",
+        "Perrache",
+        "Ampère",
+        "Cordeliers",
+        "Hotel de ville",
+        "Foch",
+        "Massena",
+        "Charpennes",
+        "République",
+        "Brotteaux",
+        "Part-dieu",
+        "Place guichard",
+        "Jean macé",
+        "Jean jaures",
+     ];
     var links = [{
-            depart: "Paris",
-            direction: ["Lyon", "Nantes", "Reims", "Rennes", "Dijon"],
+            depart: "Vaise",
+            direction: ["Valmy"],
         },
         {
-            depart: "Lyon",
-            direction: ["Paris", "Marseille", "Bordeaux"],
+            depart: "Valmy",
+            direction: ["Vaise","Gorge de loup"],
         },
         {
-            depart: "Marseille",
-            direction: ["Lyon", "Montpellier", "Toulon"],
+            depart: "Gorge de loup",
+            direction: ["Valmy","Vieux lyon"],
         },
         {
-            depart: "Brest",
-            direction: ["Rennes", "Nantes"],
+            depart: "Vieux lyon",
+            direction: ["Gorge de loup","Bellecour"],
         },
         {
-            depart: "Briançon",
-            direction: ["Gap"],
+            depart: "Bellecour",
+            direction: ["Vieux lyon","Cordeliers","Ampère","Guillotière"],
         },
         {
-            depart: "Gap",
-            direction: ["Valence"],
+            depart: "Guillotière",
+            direction: ["Bellecour","Saxe-gambetta"],
         },
         {
-            depart: "Toulon",
-            direction: ["Marseille", "Nice"],
+            depart: "Saxe-gambetta",
+            direction: ["Guillotière","Garibaldid"],
         },
         {
-            depart: "Bordeaux",
-            direction: ["Toulouse", "Nantes"],
+            depart: "Garibaldid",
+            direction: ["Saxe-gambetta","Sans-souci"],
         },
         {
-            depart: "Nantes",
-            direction: ["Brest", "Rennes", "Paris", "Bordeaux"],
+            depart: "Sans-souci",
+            direction: ["Garibaldid","Monplaisir-lumière"],
         },
         {
-            depart: "Rennes",
-            direction: ["Nantes", "Paris", "Brest"],
+            depart: "Monplaisir-lumière",
+            direction: ["Sans-souci"],
         },
         {
-            depart: "Dijon",
-            direction: ["Paris", "Lyon", "Metz"],
+            depart: "Ampère",
+            direction: ["Bellecour","Perrache"],
         },
         {
-            depart: "Metz",
-            direction: ["Reims", "Dijon"],
+            depart: "Perrache",
+            direction: ["Ampère"],
         },
         {
-            depart: "Valence",
-            direction: ["Montpellier", "Lyon"],
+            depart: "Cordeliers",
+            direction: ["Bellecour","Hotel de ville"],
         },
         {
-            depart: "Nice",
-            direction: ["Toulon"],
+            depart: "Hotel de ville",
+            direction: ["Cordeliers","Foch"],
         },
         {
-            depart: "Limoges",
-            direction: ["Nantes", "Toulouse", "Lyon"],
+            depart: "Foch",
+            direction: ["Hotel de ville","Massena"],
         },
         {
-            depart: "Reims",
-            direction: ["Paris", "Metz"],
+            depart: "Massena",
+            direction: ["Foch","Charpennes"],
         },
         {
-            depart: "Toulouse",
-            direction: ["Montpellier", "Bordeaux", "Limoges"],
+            depart: "Charpennes",
+            direction: ["Massena","République","Brotteaux"],
         },
         {
-            depart: "Montpellier",
-            direction: ["Toulouse", "Marseille", "Lyon"],
+            depart: "République",
+            direction: ["Charpennes"],
+        },
+        {
+            depart: "Brotteaux",
+            direction: ["Charpennes","Part-dieu"],
+        },
+        {
+            depart: "Part-dieu",
+            direction: ["Brotteaux","Place guichard"],
+        },
+        {
+            depart: "Place guichard",
+            direction: ["Part-dieu","Saxe-gambetta"],
+        },
+        {
+            depart: "Jean macé",
+            direction: ["Saxe-gambetta","Jean jaures"],
+        },
+        {
+            depart: "Jean jaures",
+            direction: ["Jean macé"],
         },
     ];
 
