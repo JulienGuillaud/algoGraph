@@ -19,6 +19,11 @@ class Graph {
         this.node = [];
         this.constructionNodeSet = null
         this.constructionLinkSet = null
+        this.itineraireList = []
+    }
+
+    getNodes(){
+        return this.node
     }
 
     fromArray(gares, links) {
@@ -124,32 +129,46 @@ class Graph {
         }
     }
 
-
-
     creerItineraire(depart, arrivee) {
-        if (this.cheminPossibleVers(depart, arrivee)) {
-            console.log("DEPART ITINERAIRE")
-            var itineraire = []
-            return this._creerItineraire(depart, arrivee, itineraire)
-        } else {
-            return ["Erreur, aucun itineraire est possible"]
+        // Si chemin possible
+        if(this.cheminPossibleVers(depart, arrivee)){
+            console.log("DEPART PARCOURS")
+            var dejaVu = []
+            this.itineraireList = []
+            this._itineraire(depart, arrivee, dejaVu)
+            this.itineraireList.reverse()
+            this.itineraireList.unshift(depart)
+            this.itineraireList.push(arrivee)
+            console.log("itineraireList = "+this.itineraireList)
+            return this.itineraireList
+        }else{
+            return ["<span style='color:red'>Itineraire impossible</span>"]
         }
     }
-    _creerItineraire(depart, arrivee, itineraire) {
-        var node = this.findNode(depart)
-        var arriveeNode = this.findNode(arrivee)
-        itineraire.push(node.getValue())
+
+    _itineraire(startPoint, arrivee, dejaVu) {
+        var node = this.findNode(startPoint)
+        dejaVu.push(node.getValue())
+        console.log("Deja vu = "+dejaVu)
         var antecedentList = node.getAntecedent()
         for (var i = 0; i < antecedentList.length; i++) {
-            if (antecedentList[i].getValue() == arrivee) {
-                console.log("----itineraire = " + itineraire)
-                return itineraire
-            }
-            if (itineraire.indexOf(antecedentList[i].getValue()) == -1) {
-                this._creerItineraire(antecedentList[i].getValue(), arrivee, itineraire)
+            var nodeEnfant = antecedentList[i]  
+            console.log("Prochain = "+nodeEnfant.getValue())
+            if(nodeEnfant.getValue() != arrivee){
+                if (dejaVu.indexOf(nodeEnfant.getValue()) == -1) {
+                    var trouve = this._itineraire(nodeEnfant.getValue(), arrivee, dejaVu)
+                    if(trouve != false){
+                        console.log("Trouve, ajout de "+nodeEnfant.getValue())
+                        this.itineraireList.push(nodeEnfant.getValue())
+                       return true
+                    }
+                }
+            }else{
+                console.log("Arrivée trouvée")
+                return true
             }
         }
-        return itineraire
+        return false
     }
 
     parcoursProfondeur(startPoint) {
@@ -165,6 +184,7 @@ class Graph {
         var antecedentList = node.getAntecedent()
         for (var i = 0; i < antecedentList.length; i++) {
             console.log("Prochain : " + antecedentList[i].getValue())
+            console.log("dejaVu : " + dejaVu)
             if (dejaVu.indexOf(antecedentList[i].getValue()) == -1) {
                 this._parcoursProfondeur(antecedentList[i].getValue(), dejaVu)
             }
@@ -235,17 +255,23 @@ class Graph {
                         var antecedentID = currentNodeIndex;
                     }
                 }
+                var idLink = newNodes[noeudIndex].id+"-TO-"+newNodes[antecedentID].id
+                idLink = idLink.toLowerCase().replace(" ","_")
+                idLink = idLink.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                console.log("idLink = "+idLink)
                 newLinks.push({
                     source: newNodes[noeudIndex],
                     target: newNodes[antecedentID],
                     left: false,
                     right: true,
-                    value: "",
+                    value: idLink,
                 });
             }
         }
         console.log("newNodes");
         console.log(newNodes);
+        console.log("newLinks");
+        console.log(newLinks);
         createSVG(newNodes, newLinks);
     }
 }
@@ -259,7 +285,7 @@ function createGare() {
         "Bellecour",
         "Guillotière",
         "Saxe-gambetta",
-        "Garibaldid",
+        "Garibaldi",
         "Sans-souci",
         "Monplaisir-lumière",
         "Perrache",
@@ -302,15 +328,15 @@ function createGare() {
         },
         {
             depart: "Saxe-gambetta",
-            direction: ["Guillotière","Garibaldid"],
+            direction: ["Guillotière","Garibaldi"],
         },
         {
-            depart: "Garibaldid",
+            depart: "Garibaldi",
             direction: ["Saxe-gambetta","Sans-souci"],
         },
         {
             depart: "Sans-souci",
-            direction: ["Garibaldid","Monplaisir-lumière"],
+            direction: ["Garibaldi","Monplaisir-lumière"],
         },
         {
             depart: "Monplaisir-lumière",

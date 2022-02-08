@@ -94,13 +94,51 @@
             });
 
             $("#calculerItineraire").on('click', function(e) {
+                $("#resultatItineraire").html("")
                 var depart = $("#inputDepart-itineraire").val()
                 var arrivee = $("#inputArrivee-itineraire").val()
                 if (depart != "" && arrivee != "") {
                     var itineraire = currentGraph.creerItineraire(depart, arrivee)
+                    for(var i = 0 ; i < itineraire.length ; i++){
+                        if(i == 0 && itineraire.length > 1){
+                            $("#resultatItineraire").html($("#resultatItineraire").html()+"<span style='color:#03d103;'>"+itineraire[i]+"</span> > ")
+                        }else if( i == itineraire.length-1 && itineraire.length > 1){
+                            $("#resultatItineraire").html($("#resultatItineraire").html()+"<span style='color:#03d103;'>"+itineraire[i]+"</span>")
+                        }else if(itineraire.length == 1){
+                            $("#resultatItineraire").html($("#resultatItineraire").html()+itineraire[i])
+                        }else{
+                            $("#resultatItineraire").html($("#resultatItineraire").html()+itineraire[i]+" > ")
+                        }
+                    }
+                   
 
+                    // Colorier noeuds
+                    // Reset anciennes couleurs
+                    $("text").css("fill","initial") 
+                    $("text").css("font-weight","bold") 
+                    $("path").css("stroke","#888") 
+                    $("path").css("marker-end","url('#end-arrow')") 
+                    // Mettre nouvelles couleurs
+                    for(var i = 0 ; i < itineraire.length ; i++){
+                        $("text:contains('"+itineraire[i]+"')").css("fill","red")
 
-                    $("#resultatItineraire").text(itineraire)
+                        // Colorier links
+                        if(i != itineraire.length-1){
+                            var idLink = itineraire[i]+"-TO-"+itineraire[i+1]
+                            idLink = idLink.toLowerCase().replace(" ","_")
+                            idLink = idLink.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                            console.log("idLink = "+idLink)
+                            $("path[id='"+idLink+"']").css("stroke","red")
+                            $("path[id='"+idLink+"']").css("marker-end","url('#end-arrow-red')")
+                        }
+                        
+                    }
+                    // Depart
+                    $("text:contains('"+depart+"')").css("fill","#03d103")
+                    $("text:contains('"+depart+"')").css("font-weight","900")
+                    // Arrivee
+                    $("text:contains('"+arrivee+"')").css("fill","#03d103")
+                    $("text:contains('"+arrivee+"')").css("font-weight","900")
                 }
             });
 
