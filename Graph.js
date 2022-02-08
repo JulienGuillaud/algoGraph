@@ -170,7 +170,15 @@ class Graph {
         }
         return false
     }
+/*
+    startItineraireDijkstra(depart, arrivee){
 
+    }
+
+    _dijkstra(depart, arrivee){
+
+    }
+*/
     parcoursProfondeur(startPoint) {
         console.log("DEPART PARCOURS")
         var dejaVu = []
