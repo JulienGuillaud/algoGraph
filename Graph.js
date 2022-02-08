@@ -300,9 +300,10 @@ function createGare() {
         "Part-dieu",
         "Place guichard",
         "Jean macé",
-        "Jean jaures",
+        //"Jean jaures",
      ];
-    var links = [{
+     // Links complets
+    /*var links = [{
             depart: "Vaise",
             direction: ["Valmy"],
         },
@@ -393,6 +394,96 @@ function createGare() {
         {
             depart: "Jean jaures",
             direction: ["Jean macé"],
+        },
+    ]; */
+     // Links Simplifiés
+    var links = [{
+            depart: "Vaise",
+            direction: ["Valmy"],
+        },
+        {
+            depart: "Valmy",
+            direction: ["Gorge de loup"],
+        },
+        {
+            depart: "Gorge de loup",
+            direction: ["Vieux lyon"],
+        },
+        {
+            depart: "Vieux lyon",
+            direction: ["Bellecour"],
+        },
+        {
+            depart: "Bellecour",
+            direction: ["Cordeliers","Ampère","Guillotière"],
+        },
+        {
+            depart: "Guillotière",
+            direction: ["Saxe-gambetta"],
+        },
+        {
+            depart: "Saxe-gambetta",
+            direction: ["Garibaldi"],
+        },
+        {
+            depart: "Garibaldi",
+            direction: ["Sans-souci"],
+        },
+        {
+            depart: "Sans-souci",
+            direction: ["Garibaldi","Monplaisir-lumière"],
+        },
+        {
+            depart: "Monplaisir-lumière",
+            direction: ["Sans-souci"],
+        },
+        {
+            depart: "Ampère",
+            direction: ["Bellecour","Perrache"],
+        },
+        {
+            depart: "Perrache",
+            direction: ["Ampère"],
+        },
+        {
+            depart: "Cordeliers",
+            direction: ["Hotel de ville"],
+        },
+        {
+            depart: "Hotel de ville",
+            direction: ["Foch"],
+        },
+        {
+            depart: "Foch",
+            direction: ["Hotel de ville","Massena"],
+        },
+        {
+            depart: "Massena",
+            direction: ["Foch","Charpennes"],
+        },
+        {
+            depart: "Charpennes",
+            direction: ["République","Brotteaux"],
+        },
+        {
+            depart: "République",
+            direction: [],
+        },
+        {
+            depart: "Brotteaux",
+            direction: ["Part-dieu"],
+        },
+        {
+            depart: "Part-dieu",
+            direction: ["Place guichard"],
+        },
+        {
+            depart: "Place guichard",
+            direction: ["Saxe-gambetta"],
+        },
+        {
+            depart: "Jean macé",
+            direction: ["Saxe-gambetta"],
         },
     ];
 

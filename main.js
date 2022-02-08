@@ -89,16 +89,16 @@ function createSVG(lesNodes, lesLinks) {
                 dr = Math.sqrt(dx * dx + dy * dy),
                 normX = dx / dr,
                 normY = dy / dr,
-                targetPadding = d.right ? 17 : 12,
+                targetPadding = d.right ? 38 : 30,
                 targetX = d.target.x - (targetPadding * normX),
                 targetY = d.target.y - (targetPadding * normY);
 
             // Defaults for normal edge.
             drx = dr,
-                dry = dr,
-                xRotation = 0, // degrees
-                largeArc = 0, // 1 or 0
-                sweep = 1; // 1 or 0
+            dry = dr,
+            xRotation = 0, // degrees
+            largeArc = 0, // 1 or 0
+            sweep = 1; // 1 or 0
 
             // Self edge.
             if (x1 === x2 && y1 === y2) {
@@ -161,26 +161,18 @@ function createSVG(lesNodes, lesLinks) {
 
         g.append('svg:circle')
             .attr('class', 'node')
-            .attr('r', 12)
-            .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
-            .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
+            .attr('r', 30)
+            .style('fill', function(d) { return "rgb(255 255 255 / 100%)" })
+            .style('stroke', function(d) { return "rgb(227 227 227)" })
+            .style('stroke-width', function(d) { return "3px" })
             .classed('reflexive', function(d) { return d.reflexive; })
-            .on('mouseover', function(d) {
-                if (!mousedown_node || d === mousedown_node) return;
-                // enlarge target node
-                d3.select(this).attr('transform', 'scale(1.1)');
-            })
-            .on('mouseout', function(d) {
-                if (!mousedown_node || d === mousedown_node) return;
-                // unenlarge target node
-                d3.select(this).attr('transform', '');
-            })
 
         // show node IDs
         g.append('svg:text')
             .attr('x', 0)
             .attr('y', 4)
             .attr('class', 'id')
+            .style('font-size', function(d) { return "10px" })
             .text(function(d) { return d.id; });
 
         // remove old nodes
