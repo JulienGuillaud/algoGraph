@@ -272,6 +272,12 @@ class Graph {
         console.log(newNodes);
         console.log("newLinks");
         console.log(newLinks);
+        // Remplir datalist
+        $("#datalistGares").html("")
+        var nodesList = this.getNodes()
+        for(var i = 0 ; i < nodesList.length ; i++ ){
+            $("#datalistGares").html($("#datalistGares").html()+"<option value='"+nodesList[i].getValue()+"'>")
+        }
         createSVG(newNodes, newLinks);
     }
 }

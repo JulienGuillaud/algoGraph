@@ -38,13 +38,13 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="">Départ </span>
             </div>
-            <input type="text" class="form-control" name="depart" id="inputDepart" style="width: 150px;height: 50px;">
+            <input type="text" list="datalistGares" class="form-control" name="depart" id="inputDepart" style="width: 150px;height: 50px;">
         </div>
         <div class="input-group" style="width: fit-content;">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="">Arrivée </span>
             </div>
-            <input type="text" class="form-control" name="arrivee" id="inputArrivee" style="width: 150px;height: 50px;">
+            <input type="text" list="datalistGares" class="form-control" name="arrivee" id="inputArrivee" style="width: 150px;height: 50px;">
         </div>
         <div class="form-group">
             <button id="verifierChemin" class="btn btn-primary" style="margin-top: 15px;width: 165px;height: 35px;">Itineraire possible ?</button>
@@ -55,13 +55,13 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="">Départ </span>
             </div>
-            <input type="text" class="form-control" name="departItineraire" id="inputDepart-itineraire" style="width: 150px;height: 50px;">
+            <input type="text" list="datalistGares" class="form-control" name="departItineraire" id="inputDepart-itineraire" style="width: 150px;height: 50px;">
         </div>
         <div class="input-group" style="width: fit-content;">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="">Arrivée </span>
             </div>
-            <input type="text" class="form-control" name="arriveeItineraire" id="inputArrivee-itineraire" style="width: 150px;height: 50px;">
+            <input type="text" list="datalistGares" class="form-control" name="arriveeItineraire" id="inputArrivee-itineraire" style="width: 150px;height: 50px;">
         </div>
         <div class="form-group">
             <button id="calculerItineraire" class="btn btn-primary" style="margin-top: 15px;width: 165px;height: 35px;">Calculer l'itineraire</button>
@@ -71,6 +71,8 @@
         <div class="form-group">
             <button class="btn btn-primary" id="loadGares" style="margin-top: 15px;width: 133px;height: 35px;">Charger Gares</button>
         </div>
+        <datalist id="datalistGares">
+        </datalist>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -118,27 +120,30 @@
                     $("text").css("font-weight","bold") 
                     $("path").css("stroke","#888") 
                     $("path").css("marker-end","url('#end-arrow')") 
+                    $("circle").css("stroke","rgb(227, 227, 227)") 
                     // Mettre nouvelles couleurs
                     for(var i = 0 ; i < itineraire.length ; i++){
-                        $("text:contains('"+itineraire[i]+"')").css("fill","red")
-
+                        $("text:contains('"+itineraire[i]+"')").css("fill","#0030ff")
+                        $("text:contains('"+itineraire[i]+"')").parent().children("circle").css("stroke", "#0030ff")
                         // Colorier links
                         if(i != itineraire.length-1){
                             var idLink = itineraire[i]+"-TO-"+itineraire[i+1]
                             idLink = idLink.toLowerCase().replace(" ","_")
                             idLink = idLink.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                             console.log("idLink = "+idLink)
-                            $("path[id='"+idLink+"']").css("stroke","red")
-                            $("path[id='"+idLink+"']").css("marker-end","url('#end-arrow-red')")
+                            $("path[id='"+idLink+"']").css("stroke","#0030ff")
+                            $("path[id='"+idLink+"']").css("marker-end","url('#end-arrow-blue')")
                         }
                         
                     }
                     // Depart
                     $("text:contains('"+depart+"')").css("fill","#03d103")
                     $("text:contains('"+depart+"')").css("font-weight","900")
+                    $("text:contains('"+depart+"')").parent().children("circle").css("stroke", "#03d103")
                     // Arrivee
                     $("text:contains('"+arrivee+"')").css("fill","#03d103")
                     $("text:contains('"+arrivee+"')").css("font-weight","900")
+                    $("text:contains('"+arrivee+"')").parent().children("circle").css("stroke", "#03d103")
                 }
             });
 

@@ -41,7 +41,7 @@ function createSVG(lesNodes, lesLinks) {
         .attr('fill', '#000');
 
     svg.append('svg:defs').append('svg:marker')
-        .attr('id', 'end-arrow-red')
+        .attr('id', 'end-arrow-blue')
         .attr('viewBox', '0 -5 10 10')
         .attr('refX', 6)
         .attr('markerWidth', 3)
@@ -49,7 +49,7 @@ function createSVG(lesNodes, lesLinks) {
         .attr('orient', 'auto')
         .append('svg:path')
         .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', 'red');
+        .attr('fill', '#0030ff');
 
     svg.append('svg:defs').append('svg:marker')
         .attr('id', 'start-arrow')
