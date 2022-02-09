@@ -79,6 +79,11 @@ function createSVG(lesNodes, lesLinks) {
         path.attr('id', function(d) {
             return d.value
         });
+        
+        path.attr('data', function(d) {
+            return d.data
+        });
+        
         path.attr('d', function(d) {
             var x1 = d.source.x,
                 y1 = d.source.y,

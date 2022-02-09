@@ -132,14 +132,14 @@ class Graph {
     creerItineraire(depart, arrivee) {
         // Si chemin possible
         if(this.cheminPossibleVers(depart, arrivee)){
-            console.log("DEPART PARCOURS")
+            //console.log("DEPART PARCOURS")
             var dejaVu = []
             this.itineraireList = []
             this._itineraire(depart, arrivee, dejaVu)
             this.itineraireList.reverse()
             this.itineraireList.unshift(depart)
             this.itineraireList.push(arrivee)
-            console.log("itineraireList = "+this.itineraireList)
+            //console.log("itineraireList = "+this.itineraireList)
             return this.itineraireList
         }else{
             return ["<span style='color:red'>Itineraire impossible</span>"]
@@ -149,36 +149,112 @@ class Graph {
     _itineraire(startPoint, arrivee, dejaVu) {
         var node = this.findNode(startPoint)
         dejaVu.push(node.getValue())
-        console.log("Deja vu = "+dejaVu)
         var antecedentList = node.getAntecedent()
         for (var i = 0; i < antecedentList.length; i++) {
             var nodeEnfant = antecedentList[i]  
-            console.log("Prochain = "+nodeEnfant.getValue())
             if(nodeEnfant.getValue() != arrivee){
                 if (dejaVu.indexOf(nodeEnfant.getValue()) == -1) {
                     var trouve = this._itineraire(nodeEnfant.getValue(), arrivee, dejaVu)
                     if(trouve != false){
-                        console.log("Trouve, ajout de "+nodeEnfant.getValue())
                         this.itineraireList.push(nodeEnfant.getValue())
                        return true
                     }
                 }
             }else{
-                console.log("Arrivée trouvée")
                 return true
             }
         }
         return false
     }
-/*
-    startItineraireDijkstra(depart, arrivee){
 
+    dijkstra(depart, arrivee){
+        // Si chemin possible
+        if(this.cheminPossibleVers(depart, arrivee)){
+            var noeuds = this.getNodes()
+            console.log("noeuds = "+noeuds)
+            console.log(noeuds)
+            var noeudDijkstra = new Object();
+    
+            for(var i = 0 ; i < noeuds.length ; i++){
+                noeudDijkstra[noeuds[i].getValue()] = {
+                    nom : noeuds[i].getValue(),
+                    visited : false,
+                    distance : Infinity,
+                    bestParent : null
+                }
+            }
+            noeudDijkstra[depart].distance = 0
+    
+            noeudDijkstra = this._dijkstra(depart, arrivee, noeudDijkstra)
+            console.log("Resultat final dijkstra = ")
+            debugDijkstra(noeudDijkstra)
+    
+            // Traiter resultats
+            var itiniraireTermine = false
+            var itineraire = []
+            var noeudNom = arrivee;
+            while(!itiniraireTermine){ 
+                //console.log("NoeudNom = "+noeudNom)
+                var bonParent = noeudDijkstra[noeudNom].bestParent
+                noeudNom = bonParent
+                itineraire.push(noeudNom)
+                if(noeudNom == depart){
+                    itiniraireTermine = true
+                }
+            }
+            console.log("Itineraire = ")
+            console.log(itineraire)
+            itineraire.reverse()
+            itineraire.push(arrivee)
+            return itineraire
+        }else{
+            return ["<span style='color:red'>Itineraire impossible</span>"]
+        }
     }
 
-    _dijkstra(depart, arrivee){
+    _dijkstra(depart, arrivee, noeudDijkstra){
+        var node = this.findNode(depart)
+        var nomNode = node.getValue()
+        var enfants = node.getAntecedent()
+        noeudDijkstra[nomNode].visited = true
 
+        // Pour chaque enfants
+        for (let i = 0; i < enfants.length; i++) {
+            var enfantNom = enfants[i].getValue()
+            // Parametres actuels de l'enfant
+            var enfantVisited = noeudDijkstra[enfantNom].visited
+            var enfantDistanceToDepart = noeudDijkstra[enfantNom].distance
+            // Parametres actuels du noeud courant
+            var noeudDistanceToDepart = noeudDijkstra[nomNode].distance
+
+            // Assigner le meilleur itineraire a chaque enfant
+            if(enfantDistanceToDepart == Infinity){
+                // Ajouter le noeud actuel comme chemin vers le depart
+                noeudDijkstra[enfantNom].distance = noeudDistanceToDepart+1
+                noeudDijkstra[enfantNom].bestParent = nomNode
+            }else{
+                var distanceFromEnfantToDepart = noeudDistanceToDepart+1
+                // Si le trajet est mieux que le trajet actuel sur l'enfant
+                if(distanceFromEnfantToDepart < enfantDistanceToDepart){
+                    noeudDijkstra[enfantNom].distance = noeudDistanceToDepart+1
+                    noeudDijkstra[enfantNom].bestParent = nomNode
+                }
+            }
+        }
+        for (var i = 0; i < enfants.length; i++) {
+            var enfantNom = enfants[i].getValue()
+            var enfantVisited = noeudDijkstra[enfantNom].visited
+
+            // Si l'enfant a pas déja été visité
+            if(!enfantVisited){
+                // Faire pareil pour chaque noeuds enfant
+                this._dijkstra(enfantNom, arrivee, noeudDijkstra)
+            }
+        }
+        return noeudDijkstra
     }
-*/
+
+
     parcoursProfondeur(startPoint) {
         console.log("DEPART PARCOURS")
         var dejaVu = []
@@ -191,8 +267,8 @@ class Graph {
         dejaVu.push(node.getValue())
         var antecedentList = node.getAntecedent()
         for (var i = 0; i < antecedentList.length; i++) {
-            console.log("Prochain : " + antecedentList[i].getValue())
-            console.log("dejaVu : " + dejaVu)
+            //console.log("Prochain : " + antecedentList[i].getValue())
+            //console.log("dejaVu : " + dejaVu)
             if (dejaVu.indexOf(antecedentList[i].getValue()) == -1) {
                 this._parcoursProfondeur(antecedentList[i].getValue(), dejaVu)
             }
@@ -221,12 +297,12 @@ class Graph {
             var noeud = this.node[noeudIndex];
             var nodeVal = noeud.getValue();
             var nodeAntecedents = noeud.getAntecedent();
-            console.log(nodeVal);
+            //console.log(nodeVal);
             for (
                 var antecedentsIndex = 0; antecedentsIndex < nodeAntecedents.length; antecedentsIndex++
             ) {
                 var antecedents = nodeAntecedents[antecedentsIndex];
-                console.log(" ↳ " + antecedents.getValue());
+                //console.log(" ↳ " + antecedents.getValue());
             }
         }
     }
@@ -266,20 +342,16 @@ class Graph {
                 var idLink = newNodes[noeudIndex].id+"-TO-"+newNodes[antecedentID].id
                 idLink = idLink.toLowerCase().replace(" ","_")
                 idLink = idLink.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                console.log("idLink = "+idLink)
                 newLinks.push({
                     source: newNodes[noeudIndex],
                     target: newNodes[antecedentID],
                     left: false,
                     right: true,
-                    value: idLink,
+                    data: idLink,
+                    value: 1,
                 });
             }
         }
-        console.log("newNodes");
-        console.log(newNodes);
-        console.log("newLinks");
-        console.log(newLinks);
         // Remplir datalist
         $("#datalistGares").html("")
         var nodesList = this.getNodes()
@@ -288,6 +360,24 @@ class Graph {
         }
         createSVG(newNodes, newLinks);
     }
+}
+
+function debugDijkstra(array, debugFull = false){
+    /* DEBUG */
+    console.log("------------------------------------------------------------")
+    console.log("Noeuds dijkstra = ")
+    console.log(array)
+    if(debugFull){
+        for (var i in array) {
+            console.log(i)
+            console.log(" Visited "+array[i].visited)
+            console.log(" Distance "+array[i].distance)
+            console.log(" BestParam "+array[i].bestParent)
+            
+        }
+    }
+    console.log("------------------------------------------------------------")
+    /* FIN DEBUG */
 }
 
 function createGare() {
@@ -316,100 +406,6 @@ function createGare() {
         "Jean macé",
         //"Jean jaures",
      ];
-     // Links complets
-    /*var links = [{
-            depart: "Vaise",
-            direction: ["Valmy"],
-        },
-        {
-            depart: "Valmy",
-            direction: ["Vaise","Gorge de loup"],
-        },
-        {
-            depart: "Gorge de loup",
-            direction: ["Valmy","Vieux lyon"],
-        },
-        {
-            depart: "Vieux lyon",
-            direction: ["Gorge de loup","Bellecour"],
-        },
-        {
-            depart: "Bellecour",
-            direction: ["Vieux lyon","Cordeliers","Ampère","Guillotière"],
-        },
-        {
-            depart: "Guillotière",
-            direction: ["Bellecour","Saxe-gambetta"],
-        },
-        {
-            depart: "Saxe-gambetta",
-            direction: ["Guillotière","Garibaldi"],
-        },
-        {
-            depart: "Garibaldi",
-            direction: ["Saxe-gambetta","Sans-souci"],
-        },
-        {
-            depart: "Sans-souci",
-            direction: ["Garibaldi","Monplaisir-lumière"],
-        },
-        {
-            depart: "Monplaisir-lumière",
-            direction: ["Sans-souci"],
-        },
-        {
-            depart: "Ampère",
-            direction: ["Bellecour","Perrache"],
-        },
-        {
-            depart: "Perrache",
-            direction: ["Ampère"],
-        },
-        {
-            depart: "Cordeliers",
-            direction: ["Bellecour","Hotel de ville"],
-        },
-        {
-            depart: "Hotel de ville",
-            direction: ["Cordeliers","Foch"],
-        },
-        {
-            depart: "Foch",
-            direction: ["Hotel de ville","Massena"],
-        },
-        {
-            depart: "Massena",
-            direction: ["Foch","Charpennes"],
-        },
-        {
-            depart: "Charpennes",
-            direction: ["Massena","République","Brotteaux"],
-        },
-        {
-            depart: "République",
-            direction: ["Charpennes"],
-        },
-        {
-            depart: "Brotteaux",
-            direction: ["Charpennes","Part-dieu"],
-        },
-        {
-            depart: "Part-dieu",
-            direction: ["Brotteaux","Place guichard"],
-        },
-        {
-            depart: "Place guichard",
-            direction: ["Part-dieu","Saxe-gambetta"],
-        },
-        {
-            depart: "Jean macé",
-            direction: ["Saxe-gambetta","Jean jaures"],
-        },
-        {
-            depart: "Jean jaures",
-            direction: ["Jean macé"],
-        },
-    ]; */
      // Links Simplifiés
     var links = [{
             depart: "Vaise",
@@ -429,15 +425,15 @@ function createGare() {
         },
         {
             depart: "Bellecour",
-            direction: ["Cordeliers","Ampère","Guillotière"],
+            direction: ["Cordeliers","Guillotière"],
         },
         {
             depart: "Guillotière",
-            direction: ["Saxe-gambetta"],
+            direction: ["Saxe-gambetta", "Bellecour"],
         },
         {
             depart: "Saxe-gambetta",
-            direction: ["Garibaldi"],
+            direction: ["Garibaldi", "Guillotière"],
         },
         {
             depart: "Garibaldi",

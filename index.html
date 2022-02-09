@@ -14,8 +14,11 @@
 <body>
     <div style="position:absolute;left:0px;top:0px;width: 60%;height: 100%;z-index: 0;" id="graphSVG" tabindex="0"></div>
     <div style="position:absolute;right:0px;top:0px;width: 40%;height: 100%;border-left: double 5px lightgrey;padding-left: 3%;padding-top: 2%;overflow-y: scroll;box-shadow: -6px 1px 5px #d5d5d5;z-index: 2;" id="param" tabindex="1">
-        <h1 style="font-family: 'Bangers', cursive;border-bottom: solid 5px;font-size: 3em;padding-bottom: 17px;margin-bottom: 45px;">Pas la SNCF</h1>
-        <form action="" id="dynamic-table">
+        <h1 style="font-family: 'Bangers', cursive;border-bottom: solid 5px;font-size: 2.5em;padding-bottom: 17px;margin-bottom: 35px;margin-top: -37px;margin-left: -49px;">Pas la SNCF</h1>
+        <form action="" id="dynamic-table" style="margin-bottom: -20px;">
+            <div class="form-group" style="margin-left: -49px;margin-top: -34px;margin-bottom: 39px;">
+                <button class="btn btn-primary" id="loadGares" style="margin-top: 15px;width: 133px;height: 35px;">Recharger Gares</button>
+            </div>
             <div class="input-group" style="width: fit-content;">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="">Size </span>
@@ -25,7 +28,6 @@
             <div class="form-group">
                 <button class="btn btn-primary" style="margin-top: 15px;width: 133px;height: 35px;">Créer matrice</button>
             </div>
-
             <br>
         </form>
         <div id="table-wrapper">
@@ -51,6 +53,20 @@
             <button id="verifierCheminAnswer" class="btn btn-secondary" disabled style="margin-top: 15px;width: 133px;height: 35px;"></button>
         </div>
         <hr>
+        <br>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="algoCalcul" id="normal" value="normal" checked>
+            <label class="form-check-label" for="normal">
+              Taxi samedi soir (le conducteur a besoin d'argent)
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="algoCalcul" id="dijkstra" value="dijkstra">
+            <label class="form-check-label" for="dijkstra">
+              Dijkstra (fait vite t'as un avion a prendre)
+            </label>
+          </div>
+          <br>
         <div class="input-group" style="width: fit-content;">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="">Départ </span>
@@ -68,9 +84,7 @@
             <p id="resultatItineraire"></p>
         </div>
         <hr>
-        <div class="form-group">
-            <button class="btn btn-primary" id="loadGares" style="margin-top: 15px;width: 133px;height: 35px;">Charger Gares</button>
-        </div>
+        
         <datalist id="datalistGares">
         </datalist>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -79,8 +93,16 @@
 
         <script src="d3.v3.min.js"></script>
         <script src="main.js"></script>
+        <!-- Script de création de la matrice dynamique -->
+        <script src="creationFormMatrice.js"></script>
+        <!-- Script class Graph et Node -->
+        <script src="Graph.js"></script>
+        <script src="math.js"></script>
         <script>
             var currentGraph;
+            currentGraph = createGare()
+            currentGraph.show();
+            currentGraph.createSVGfromGraph()
 
             function isNumeric(str) {
                 if (typeof str != "string") return false // we only process strings!  
@@ -99,51 +121,65 @@
                 $("#resultatItineraire").html("")
                 var depart = $("#inputDepart-itineraire").val()
                 var arrivee = $("#inputArrivee-itineraire").val()
-                if (depart != "" && arrivee != "") {
-                    var itineraire = currentGraph.creerItineraire(depart, arrivee)
-                    for(var i = 0 ; i < itineraire.length ; i++){
-                        if(i == 0 && itineraire.length > 1){
-                            $("#resultatItineraire").html($("#resultatItineraire").html()+"<span style='color:#03d103;'>"+itineraire[i]+"</span> > ")
-                        }else if( i == itineraire.length-1 && itineraire.length > 1){
-                            $("#resultatItineraire").html($("#resultatItineraire").html()+"<span style='color:#03d103;'>"+itineraire[i]+"</span>")
-                        }else if(itineraire.length == 1){
-                            $("#resultatItineraire").html($("#resultatItineraire").html()+itineraire[i])
-                        }else{
-                            $("#resultatItineraire").html($("#resultatItineraire").html()+itineraire[i]+" > ")
-                        }
-                    }
-                   
+                var algoCalcul = $("input[name='algoCalcul']:checked").val()
+                if (depart != "" && arrivee != "" && algoCalcul != "") {
 
-                    // Colorier noeuds
-                    // Reset anciennes couleurs
-                    $("text").css("fill","initial") 
-                    $("text").css("font-weight","bold") 
-                    $("path").css("stroke","#888") 
-                    $("path").css("marker-end","url('#end-arrow')") 
-                    $("circle").css("stroke","rgb(227, 227, 227)") 
-                    // Mettre nouvelles couleurs
-                    for(var i = 0 ; i < itineraire.length ; i++){
-                        $("text:contains('"+itineraire[i]+"')").css("fill","#0030ff")
-                        $("text:contains('"+itineraire[i]+"')").parent().children("circle").css("stroke", "#0030ff")
-                        // Colorier links
-                        if(i != itineraire.length-1){
-                            var idLink = itineraire[i]+"-TO-"+itineraire[i+1]
-                            idLink = idLink.toLowerCase().replace(" ","_")
-                            idLink = idLink.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                            console.log("idLink = "+idLink)
-                            $("path[id='"+idLink+"']").css("stroke","#0030ff")
-                            $("path[id='"+idLink+"']").css("marker-end","url('#end-arrow-blue')")
-                        }
-                        
+                    if(algoCalcul == "normal"){
+                        console.log("Itineraire algo normal")
+                        var itineraire = currentGraph.creerItineraire(depart, arrivee)
+                    }else if(algoCalcul == "dijkstra"){
+                        console.log("Itineraire algo dijkstra")
+                        var itineraire = currentGraph.dijkstra(depart, arrivee)
                     }
-                    // Depart
-                    $("text:contains('"+depart+"')").css("fill","#03d103")
-                    $("text:contains('"+depart+"')").css("font-weight","900")
-                    $("text:contains('"+depart+"')").parent().children("circle").css("stroke", "#03d103")
-                    // Arrivee
-                    $("text:contains('"+arrivee+"')").css("fill","#03d103")
-                    $("text:contains('"+arrivee+"')").css("font-weight","900")
-                    $("text:contains('"+arrivee+"')").parent().children("circle").css("stroke", "#03d103")
+
+                    
+                    if(!!itineraire){
+                        if(itineraire.length > 1){
+                            $("#resultatItineraire").html("<br>"+itineraire.length+" arrets de métro <br>")
+                        }
+                        for(var i = 0 ; i < itineraire.length ; i++){
+                            if(i == 0 && itineraire.length > 1){
+                                $("#resultatItineraire").html($("#resultatItineraire").html()+"<span style='color:#03d103;'>"+itineraire[i]+"</span> > ")
+                            }else if( i == itineraire.length-1 && itineraire.length > 1){
+                                $("#resultatItineraire").html($("#resultatItineraire").html()+"<span style='color:#03d103;'>"+itineraire[i]+"</span>")
+                            }else if(itineraire.length == 1){
+                                $("#resultatItineraire").html($("#resultatItineraire").html()+itineraire[i])
+                            }else{
+                                $("#resultatItineraire").html($("#resultatItineraire").html()+itineraire[i]+" > ")
+                            }
+                        }
+                       
+    
+                        // Colorier noeuds
+                        // Reset anciennes couleurs
+                        $("text").css("fill","initial") 
+                        $("text").css("font-weight","bold") 
+                        $("path").css("stroke","#888") 
+                        $("path").css("marker-end","url('#end-arrow')") 
+                        $("circle").css("stroke","rgb(227, 227, 227)") 
+                        // Mettre nouvelles couleurs
+                        for(var i = 0 ; i < itineraire.length ; i++){
+                            $("text:contains('"+itineraire[i]+"')").css("fill","#0030ff")
+                            $("text:contains('"+itineraire[i]+"')").parent().children("circle").css("stroke", "#0030ff")
+                            // Colorier links
+                            if(i != itineraire.length-1){
+                                var idLink = itineraire[i]+"-TO-"+itineraire[i+1]
+                                idLink = idLink.toLowerCase().replace(" ","_")
+                                idLink = idLink.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                                $("path[data='"+idLink+"']").css("stroke","#0030ff")
+                                $("path[data='"+idLink+"']").css("marker-end","url('#end-arrow-blue')")
+                            }
+                            
+                        }
+                        // Depart
+                        $("text:contains('"+depart+"')").css("fill","#03d103")
+                        $("text:contains('"+depart+"')").css("font-weight","900")
+                        $("text:contains('"+depart+"')").parent().children("circle").css("stroke", "#03d103")
+                        // Arrivee
+                        $("text:contains('"+arrivee+"')").css("fill","#03d103")
+                        $("text:contains('"+arrivee+"')").css("font-weight","900")
+                        $("text:contains('"+arrivee+"')").parent().children("circle").css("stroke", "#03d103")
+                    }
                 }
             });
 
@@ -197,11 +233,7 @@
                 $("input[name='size']").val($("input[name='size']").val().replace(/[^0-9]/g, ''));
             });
         </script>
-        <!-- Script de création de la matrice dynamique -->
-        <script src="creationFormMatrice.js"></script>
-        <!-- Script class Graph et Node -->
-        <script src="Graph.js"></script>
-        <script src="math.js"></script>
+
 </body>
 
 </html>
